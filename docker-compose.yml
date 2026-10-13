@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: cachelab
+      POSTGRES_USER: cachelab
+      POSTGRES_PASSWORD: cachelab
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cachelab -d cachelab"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      POSTGRES_CONN: "Host=postgres;Port=5432;Database=cachelab;Username=cachelab;Password=cachelab"
+      REDIS_CONN: "redis:6379"
+    restart: "no"
+
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      POSTGRES_CONN: "Host=postgres;Port=5432;Database=cachelab;Username=cachelab;Password=cachelab"
+      REDIS_CONN: "redis:6379"
+    profiles: ["cli"]
+    restart: "no"
+
+volumes:
+  pgdata:

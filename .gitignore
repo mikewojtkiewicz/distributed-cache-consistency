@@ -1,0 +1,14 @@
+# .NET build output
+bin/
+obj/
+*.user
+
+# Local env overrides
+.env
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Docs (ignored for now)
+docs/

@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY CacheConsistency.sln ./
+COPY src/CacheConsistency.Core/CacheConsistency.Core.csproj src/CacheConsistency.Core/
+COPY src/CacheConsistency.Infrastructure/CacheConsistency.Infrastructure.csproj src/CacheConsistency.Infrastructure/
+COPY src/CacheConsistency.Application/CacheConsistency.Application.csproj src/CacheConsistency.Application/
+RUN dotnet restore src/CacheConsistency.Application/CacheConsistency.Application.csproj
+
+COPY src/ src/
+RUN dotnet publish src/CacheConsistency.Application/CacheConsistency.Application.csproj \
+    -c Release -o /app /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/runtime:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app ./
+ENTRYPOINT ["dotnet", "CacheConsistency.Application.dll"]
