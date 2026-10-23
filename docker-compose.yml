@@ -30,6 +30,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - ./results:/app/results
     depends_on:
       postgres:
         condition: service_healthy

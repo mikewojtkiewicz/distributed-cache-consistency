@@ -12,3 +12,6 @@ Thumbs.db
 
 # Docs (ignored for now)
 docs/
+
+# Results
+results/
