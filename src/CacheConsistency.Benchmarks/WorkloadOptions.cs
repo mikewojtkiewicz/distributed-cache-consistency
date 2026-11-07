@@ -15,7 +15,12 @@ public sealed class WorkloadOptions
     public int MinRedisDelayMs { get; set; }
     public int MaxRedisDelayMs { get; set; }
     public double CacheFailureRate { get; set; }
+    public double CacheReadFailureRate { get; set; }
+    public double CacheUpdateFailureRate { get; set; }
     public double InvalidationFailureRate { get; set; }
+    public double DatabaseFailureRate { get; set; }
+    public double DatabaseReadFailureRate { get; set; }
+    public double DatabaseWriteFailureRate { get; set; }
     public double OutOfOrderRate { get; set; }
     public int OutOfOrderDelayMs { get; set; } = 100;
 
@@ -42,7 +47,12 @@ public sealed class WorkloadOptions
         if (OutOfOrderDelayMs < 0)
             throw new ArgumentOutOfRangeException(nameof(OutOfOrderDelayMs), "Out-of-order delay cannot be negative.");
         ValidateRate(nameof(CacheFailureRate), CacheFailureRate);
+        ValidateRate(nameof(CacheReadFailureRate), CacheReadFailureRate);
+        ValidateRate(nameof(CacheUpdateFailureRate), CacheUpdateFailureRate);
         ValidateRate(nameof(InvalidationFailureRate), InvalidationFailureRate);
+        ValidateRate(nameof(DatabaseFailureRate), DatabaseFailureRate);
+        ValidateRate(nameof(DatabaseReadFailureRate), DatabaseReadFailureRate);
+        ValidateRate(nameof(DatabaseWriteFailureRate), DatabaseWriteFailureRate);
         ValidateRate(nameof(OutOfOrderRate), OutOfOrderRate);
         if (string.IsNullOrWhiteSpace(OutputDirectory))
             throw new ArgumentException("Output directory cannot be empty.", nameof(OutputDirectory));
@@ -101,8 +111,23 @@ public sealed class WorkloadOptions
                 case "--cache-failure-rate":
                     options.CacheFailureRate = double.Parse(Value(), CultureInfo.InvariantCulture);
                     break;
+                case "--cache-read-failure-rate":
+                    options.CacheReadFailureRate = double.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
+                case "--cache-update-failure-rate":
+                    options.CacheUpdateFailureRate = double.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
                 case "--invalidation-failure-rate":
                     options.InvalidationFailureRate = double.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
+                case "--database-failure-rate":
+                    options.DatabaseFailureRate = double.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
+                case "--database-read-failure-rate":
+                    options.DatabaseReadFailureRate = double.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
+                case "--database-write-failure-rate":
+                    options.DatabaseWriteFailureRate = double.Parse(Value(), CultureInfo.InvariantCulture);
                     break;
                 case "--out-of-order-rate":
                     options.OutOfOrderRate = double.Parse(Value(), CultureInfo.InvariantCulture);
@@ -139,7 +164,12 @@ public sealed class WorkloadOptions
         Console.WriteLine("  --min-delay-ms N               Minimum delay before intercepted Redis operations");
         Console.WriteLine("  --max-delay-ms N               Maximum delay before intercepted Redis operations");
         Console.WriteLine("  --cache-failure-rate P         Probability from 0.0 to 1.0 of a cache-operation failure");
+        Console.WriteLine("  --cache-read-failure-rate P    Probability of a cache read failure");
+        Console.WriteLine("  --cache-update-failure-rate P  Probability of a cache mutation failure (excluding invalidation)");
         Console.WriteLine("  --invalidation-failure-rate P  Probability from 0.0 to 1.0 of KeyDelete failure");
+        Console.WriteLine("  --database-failure-rate P      Probability of any database operation failure");
+        Console.WriteLine("  --database-read-failure-rate P Probability of a database read failure");
+        Console.WriteLine("  --database-write-failure-rate P Probability of a database update failure");
         Console.WriteLine("  --out-of-order-rate P          Probability from 0.0 to 1.0 of an extra write delay");
         Console.WriteLine("  --out-of-order-delay-ms N      Extra delay for selected writes (default 100)");
         Console.WriteLine("  --no-verify-reads              Disable source-of-truth read checks (faster, no stale-read count)");

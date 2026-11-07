@@ -6,6 +6,8 @@ namespace CacheConsistency.Benchmarks;
 
 public sealed record FaultInjectionSnapshot(
     long CacheFailuresInjected,
+    long CacheReadsFailed,
+    long CacheUpdatesFailed,
     long InvalidationsFailed,
     long ArtificialDelaysApplied,
     long OutOfOrderDelaysApplied);
@@ -21,6 +23,8 @@ public class FaultInjectingRedisDatabase : DispatchProxy
     private WorkloadOptions? _options;
     private int _enabled;
     private long _cacheFailuresInjected;
+    private long _cacheReadsFailed;
+    private long _cacheUpdatesFailed;
     private long _invalidationsFailed;
     private long _artificialDelaysApplied;
     private long _outOfOrderDelaysApplied;
@@ -42,6 +46,8 @@ public class FaultInjectingRedisDatabase : DispatchProxy
 
     public FaultInjectionSnapshot Snapshot() => new(
         Interlocked.Read(ref _cacheFailuresInjected),
+        Interlocked.Read(ref _cacheReadsFailed),
+        Interlocked.Read(ref _cacheUpdatesFailed),
         Interlocked.Read(ref _invalidationsFailed),
         Interlocked.Read(ref _artificialDelaysApplied),
         Interlocked.Read(ref _outOfOrderDelaysApplied));
@@ -131,9 +137,20 @@ public class FaultInjectingRedisDatabase : DispatchProxy
             throw new RedisException($"Injected invalidation failure in {methodName}.");
         }
 
-        if (Random.Shared.NextDouble() < options.CacheFailureRate)
+        var isRead = IsCacheRead(methodName);
+        var isUpdate = IsCacheUpdate(methodName);
+        var failureRate = Math.Max(options.CacheFailureRate, isRead
+            ? options.CacheReadFailureRate
+            : isUpdate ? options.CacheUpdateFailureRate : 0);
+        if (Random.Shared.NextDouble() < failureRate)
         {
             Interlocked.Increment(ref _cacheFailuresInjected);
+            if (isRead)
+                Interlocked.Increment(ref _cacheReadsFailed);
+            else if (isUpdate)
+                Interlocked.Increment(ref _cacheUpdatesFailed);
+            else if (IsInvalidation(methodName))
+                Interlocked.Increment(ref _invalidationsFailed);
             throw new RedisException($"Injected cache failure in {methodName}.");
         }
     }
@@ -153,6 +170,17 @@ public class FaultInjectingRedisDatabase : DispatchProxy
 
     private static bool IsInvalidation(string methodName) =>
         methodName.StartsWith("KeyDelete", StringComparison.Ordinal);
+
+    private static bool IsCacheRead(string methodName) =>
+        methodName.StartsWith("StringGet", StringComparison.Ordinal) ||
+        methodName.StartsWith("KeyExists", StringComparison.Ordinal) ||
+        methodName.StartsWith("HashGet", StringComparison.Ordinal) ||
+        methodName.StartsWith("SetContains", StringComparison.Ordinal) ||
+        methodName.StartsWith("ListGet", StringComparison.Ordinal) ||
+        methodName.StartsWith("SortedSetRange", StringComparison.Ordinal);
+
+    private static bool IsCacheUpdate(string methodName) =>
+        IsCacheMutation(methodName) && !IsInvalidation(methodName);
 
     private static bool IsCacheMutation(string methodName) =>
         methodName.StartsWith("StringSet", StringComparison.Ordinal) ||

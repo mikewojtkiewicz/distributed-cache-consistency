@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace CacheConsistency.Benchmarks;
@@ -20,6 +19,7 @@ public sealed record ExperimentResult(
     long SuccessfulReads,
     long ValidatedReads,
     long ValidationFailures,
+    long ConcurrentUpdateReads,
     long StaleReads,
     long CacheAheadReads,
     long ReadFailures,
@@ -31,7 +31,11 @@ public sealed record ExperimentResult(
     long CacheHits,
     long CacheMisses,
     long CacheFailuresInjected,
+    long CacheReadFailuresInjected,
+    long CacheUpdateFailuresInjected,
     long InvalidationsFailed,
+    long DatabaseReadFailuresInjected,
+    long DatabaseWriteFailuresInjected,
     long ArtificialDelaysApplied,
     long OutOfOrderDelaysApplied,
     double OperationsPerSecond,
@@ -97,6 +101,7 @@ internal sealed class WorkloadMetrics
     private long _successfulReads;
     private long _validatedReads;
     private long _validationFailures;
+    private long _concurrentUpdateReads;
     private long _staleReads;
     private long _cacheAheadReads;
     private long _readFailures;
@@ -113,6 +118,7 @@ internal sealed class WorkloadMetrics
     public void ReadSucceeded() => Interlocked.Increment(ref _successfulReads);
     public void ReadValidated() => Interlocked.Increment(ref _validatedReads);
     public void ValidationFailed() => Interlocked.Increment(ref _validationFailures);
+    public void ConcurrentUpdateRead() => Interlocked.Increment(ref _concurrentUpdateReads);
     public void StaleRead() => Interlocked.Increment(ref _staleReads);
     public void CacheAheadRead() => Interlocked.Increment(ref _cacheAheadReads);
     public void ReadFailed() => Interlocked.Increment(ref _readFailures);
@@ -130,7 +136,8 @@ internal sealed class WorkloadMetrics
         TimeSpan elapsed,
         long cacheHits,
         long cacheMisses,
-        FaultInjectionSnapshot faults)
+        FaultInjectionSnapshot faults,
+        (long ReadFailures, long WriteFailures) databaseFaults)
     {
         var readLatency = _readLatency.Summarize();
         var writeLatency = _writeLatency.Summarize();
@@ -148,6 +155,7 @@ internal sealed class WorkloadMetrics
             Interlocked.Read(ref _successfulReads),
             Interlocked.Read(ref _validatedReads),
             Interlocked.Read(ref _validationFailures),
+            Interlocked.Read(ref _concurrentUpdateReads),
             Interlocked.Read(ref _staleReads),
             Interlocked.Read(ref _cacheAheadReads),
             Interlocked.Read(ref _readFailures),
@@ -159,7 +167,11 @@ internal sealed class WorkloadMetrics
             cacheHits,
             cacheMisses,
             faults.CacheFailuresInjected,
+            faults.CacheReadsFailed,
+            faults.CacheUpdatesFailed,
             faults.InvalidationsFailed,
+            databaseFaults.ReadFailures,
+            databaseFaults.WriteFailures,
             faults.ArtificialDelaysApplied,
             faults.OutOfOrderDelaysApplied,
             (reads + writes) / seconds,

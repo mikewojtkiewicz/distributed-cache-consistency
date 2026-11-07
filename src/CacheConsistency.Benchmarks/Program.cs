@@ -19,7 +19,9 @@ Console.WriteLine($"  postgres : {Redact(pgConn)}");
 Console.WriteLine($"  redis    : {redisConn}");
 Console.WriteLine($"  workload : workers={options.Workers}, ratio={options.ReadPercent}/{options.WritePercent}, duration={options.Duration.TotalSeconds:0.##}s");
 Console.WriteLine($"  faults   : Redis delay={options.MinRedisDelayMs}-{options.MaxRedisDelayMs}ms, " +
-                  $"cache failure={options.CacheFailureRate:P1}, invalidation failure={options.InvalidationFailureRate:P1}, " +
+                  $"cache failure={options.CacheFailureRate:P1} (read={options.CacheReadFailureRate:P1}, update={options.CacheUpdateFailureRate:P1}), " +
+                  $"invalidation failure={options.InvalidationFailureRate:P1}, " +
+                  $"database failure={options.DatabaseFailureRate:P1} (read={options.DatabaseReadFailureRate:P1}, write={options.DatabaseWriteFailureRate:P1}), " +
                   $"out-of-order delay rate={options.OutOfOrderRate:P1}");
 
 var repo = new ProductRepository(pgConn);
