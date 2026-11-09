@@ -18,6 +18,7 @@
     <ProjectReference Include="..\..\src\CacheConsistency.Core\CacheConsistency.Core.csproj" />
     <ProjectReference Include="..\..\src\CacheConsistency.Infrastructure\CacheConsistency.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\CacheConsistency.Application\CacheConsistency.Application.csproj" />
+    <ProjectReference Include="..\..\src\CacheConsistency.Benchmarks\CacheConsistency.Benchmarks.csproj" />
   </ItemGroup>
 
 </Project>

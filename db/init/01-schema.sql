@@ -26,3 +26,8 @@ INSERT INTO products (name, stock, price_cents) VALUES
     ('Gadget',   50, 4999),
     ('Gizmo',   250,  799)
 ON CONFLICT DO NOTHING;
+
+INSERT INTO products (name, stock, price_cents)
+SELECT 'Product ' || g, 100 + g, 500 + g * 10
+FROM generate_series(4, 50) AS g
+ON CONFLICT DO NOTHING;

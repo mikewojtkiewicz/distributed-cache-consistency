@@ -3,6 +3,9 @@ bin/
 obj/
 *.user
 
+# Visual Studio
+.vs/
+
 # Local env overrides
 .env
 
