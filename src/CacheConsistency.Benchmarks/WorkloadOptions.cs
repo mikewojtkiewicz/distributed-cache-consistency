@@ -12,6 +12,13 @@ public sealed class WorkloadOptions
     public int TtlSeconds { get; set; } = 30;
     public bool VerifyReadsAgainstDatabase { get; set; } = true;
 
+    public bool Recovery { get; set; }
+    public int SafetyTtlSeconds { get; set; } = 30;
+
+    public int KeyCount { get; set; } = 1;
+    public int HotKeys { get; set; }
+    public double HotShare { get; set; } = 0.8;
+
     public int MinRedisDelayMs { get; set; }
     public int MaxRedisDelayMs { get; set; }
     public double CacheFailureRate { get; set; }
@@ -28,6 +35,15 @@ public sealed class WorkloadOptions
 
     public int WritePercent => 100 - ReadPercent;
 
+    public int NextKey()
+    {
+        if (KeyCount <= 1)
+            return ProductId;
+        if (HotKeys > 0 && Random.Shared.NextDouble() < HotShare)
+            return ProductId + Random.Shared.Next(HotKeys);
+        return ProductId + Random.Shared.Next(KeyCount);
+    }
+
     public void Validate()
     {
         if (Workers < 1)
@@ -42,6 +58,14 @@ public sealed class WorkloadOptions
             throw new ArgumentOutOfRangeException(nameof(MaxWriteRetries), "Max write retries cannot be negative.");
         if (TtlSeconds < 1)
             throw new ArgumentOutOfRangeException(nameof(TtlSeconds), "TTL must be at least one second.");
+        if (SafetyTtlSeconds < 1)
+            throw new ArgumentOutOfRangeException(nameof(SafetyTtlSeconds), "Safety TTL must be at least one second.");
+        if (KeyCount < 1)
+            throw new ArgumentOutOfRangeException(nameof(KeyCount), "Key count must be at least 1.");
+        if (HotKeys < 0 || HotKeys > KeyCount)
+            throw new ArgumentOutOfRangeException(nameof(HotKeys), "Hot keys must be between 0 and key count.");
+        if (HotShare is < 0 or > 1)
+            throw new ArgumentOutOfRangeException(nameof(HotShare), "Hot share must be between 0.0 and 1.0.");
         if (MinRedisDelayMs < 0 || MaxRedisDelayMs < MinRedisDelayMs)
             throw new ArgumentException("Redis delay bounds must satisfy 0 <= min-delay-ms <= max-delay-ms.");
         if (OutOfOrderDelayMs < 0)
@@ -141,6 +165,21 @@ public sealed class WorkloadOptions
                 case "--no-verify-reads":
                     options.VerifyReadsAgainstDatabase = false;
                     break;
+                case "--recovery":
+                    options.Recovery = true;
+                    break;
+                case "--safety-ttl-seconds":
+                    options.SafetyTtlSeconds = int.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
+                case "--key-count":
+                    options.KeyCount = int.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
+                case "--hot-keys":
+                    options.HotKeys = int.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
+                case "--hot-share":
+                    options.HotShare = double.Parse(Value(), CultureInfo.InvariantCulture);
+                    break;
                 default:
                     throw new ArgumentException($"Unknown option: {args[i]} (use --help for usage).");
             }
@@ -173,6 +212,11 @@ public sealed class WorkloadOptions
         Console.WriteLine("  --out-of-order-rate P          Probability from 0.0 to 1.0 of an extra write delay");
         Console.WriteLine("  --out-of-order-delay-ms N      Extra delay for selected writes (default 100)");
         Console.WriteLine("  --no-verify-reads              Disable source-of-truth read checks (faster, no stale-read count)");
+        Console.WriteLine("  --recovery                     Enable cache-failure recovery (invalidate-on-failure + safety TTL)");
+        Console.WriteLine("  --safety-ttl-seconds N         Safety TTL applied to cache writes under --recovery (default 30)");
+        Console.WriteLine("  --key-count N                  Number of distinct product rows the workload touches (default 1)");
+        Console.WriteLine("  --hot-keys K                   Size of the hot-key subset (0 = uniform over all keys; default 0)");
+        Console.WriteLine("  --hot-share F                  Fraction of ops that hit the hot subset (default 0.8)");
         Console.WriteLine("  --output-dir PATH              Directory for JSON and CSV results (default results)");
         Console.WriteLine("  --help                         Show this help");
         Console.WriteLine();

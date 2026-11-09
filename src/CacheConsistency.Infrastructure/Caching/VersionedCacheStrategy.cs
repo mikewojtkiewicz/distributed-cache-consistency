@@ -14,10 +14,16 @@ public sealed class VersionedCacheStrategy : CacheStrategyBase
                 return 0
             end
         end
-        redis.call('SET', KEYS[1], ARGV[1])
+        local ttl = tonumber(ARGV[3])
+        if ttl and ttl > 0 then
+            redis.call('SET', KEYS[1], ARGV[1], 'EX', ttl)
+        else
+            redis.call('SET', KEYS[1], ARGV[1])
+        end
         return 1";
 
-    public VersionedCacheStrategy(IProductRepository repo, IDatabase cache) : base(repo, cache) { }
+    public VersionedCacheStrategy(IProductRepository repo, IDatabase cache, CacheRecoveryOptions? recovery = null)
+        : base(repo, cache, recovery) { }
 
     public override string Name => "Versioned Write-Through (monotonic, version-guarded)";
 
@@ -48,10 +54,19 @@ public sealed class VersionedCacheStrategy : CacheStrategyBase
 
     public async Task<bool> VersionedSetAsync(Product p)
     {
-        var result = await Cache.ScriptEvaluateAsync(
-            VersionedSetScript,
-            new RedisKey[] { Key(p.Id) },
-            new RedisValue[] { Serialize(p), p.Version });
-        return (long)result == 1;
+        var ttlSeconds = Recovery.SafetyTtl is { } ttl ? (long)ttl.TotalSeconds : 0L;
+        try
+        {
+            var result = await Cache.ScriptEvaluateAsync(
+                VersionedSetScript,
+                new RedisKey[] { Key(p.Id) },
+                new RedisValue[] { Serialize(p), p.Version, ttlSeconds });
+            return (long)result == 1;
+        }
+        catch when (Recovery.Enabled)
+        {
+            await DeleteQuietlyAsync(p.Id);
+            return false;
+        }
     }
 }

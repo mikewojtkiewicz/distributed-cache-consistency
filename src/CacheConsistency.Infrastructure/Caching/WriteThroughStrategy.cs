@@ -6,7 +6,8 @@ namespace CacheConsistency.Infrastructure.Caching;
 
 public sealed class WriteThroughStrategy : CacheStrategyBase
 {
-    public WriteThroughStrategy(IProductRepository repo, IDatabase cache) : base(repo, cache) { }
+    public WriteThroughStrategy(IProductRepository repo, IDatabase cache, CacheRecoveryOptions? recovery = null)
+        : base(repo, cache, recovery) { }
 
     public override string Name => "Write-Through (write DB then cache, same path)";
 
@@ -22,7 +23,7 @@ public sealed class WriteThroughStrategy : CacheStrategyBase
         RecordMiss();
         var fromDb = await Repo.GetByIdAsync(id, ct);
         if (fromDb is not null)
-            await Cache.StringSetAsync(Key(id), Serialize(fromDb));
+            await PopulateAsync(fromDb);
         return fromDb;
     }
 
@@ -31,7 +32,7 @@ public sealed class WriteThroughStrategy : CacheStrategyBase
     {
         var updated = await Repo.TryUpdateStockAsync(id, newStock, expectedVersion, ct);
         if (updated is not null)
-            await Cache.StringSetAsync(Key(id), Serialize(updated));
+            await WriteThroughAsync(updated);
         return updated;
     }
 }

@@ -17,7 +17,8 @@ var redisConn = Environment.GetEnvironmentVariable("REDIS_CONN") ?? "localhost:6
 Console.WriteLine("CacheConsistency — configurable PostgreSQL + Redis workload");
 Console.WriteLine($"  postgres : {Redact(pgConn)}");
 Console.WriteLine($"  redis    : {redisConn}");
-Console.WriteLine($"  workload : workers={options.Workers}, ratio={options.ReadPercent}/{options.WritePercent}, duration={options.Duration.TotalSeconds:0.##}s");
+Console.WriteLine($"  workload : workers={options.Workers}, ratio={options.ReadPercent}/{options.WritePercent}, duration={options.Duration.TotalSeconds:0.##}s, " +
+                  $"keys={options.KeyCount} (hot={options.HotKeys}@{options.HotShare:P0}), recovery={(options.Recovery ? $"on (safety TTL {options.SafetyTtlSeconds}s)" : "off")}");
 Console.WriteLine($"  faults   : Redis delay={options.MinRedisDelayMs}-{options.MaxRedisDelayMs}ms, " +
                   $"cache failure={options.CacheFailureRate:P1} (read={options.CacheReadFailureRate:P1}, update={options.CacheUpdateFailureRate:P1}), " +
                   $"invalidation failure={options.InvalidationFailureRate:P1}, " +

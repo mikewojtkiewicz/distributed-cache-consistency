@@ -25,12 +25,16 @@ public sealed class WorkloadExperimentRunner
         options.Validate();
         var results = new List<ExperimentResult>();
 
+        var recovery = options.Recovery
+            ? new CacheRecoveryOptions(true, TimeSpan.FromSeconds(options.SafetyTtlSeconds))
+            : CacheRecoveryOptions.Disabled;
+
         var strategies = new (string Label, Func<IProductRepository, IDatabase, ICacheStrategy> Build)[]
         {
-            ("CacheAside", (repo, db) => new CacheAsideStrategy(repo, db)),
+            ("CacheAside", (repo, db) => new CacheAsideStrategy(repo, db, recovery)),
             ("TTL", (repo, db) => new TtlCacheStrategy(repo, db, TimeSpan.FromSeconds(options.TtlSeconds))),
-            ("WriteThrough", (repo, db) => new WriteThroughStrategy(repo, db)),
-            ("Versioned", (repo, db) => new VersionedCacheStrategy(repo, db))
+            ("WriteThrough", (repo, db) => new WriteThroughStrategy(repo, db, recovery)),
+            ("Versioned", (repo, db) => new VersionedCacheStrategy(repo, db, recovery))
         };
 
         foreach (var definition in strategies)
@@ -100,10 +104,11 @@ public sealed class WorkloadExperimentRunner
         {
             try
             {
+                var productId = options.NextKey();
                 if (Random.Shared.Next(100) < options.ReadPercent)
-                    await ReadOnceAsync(strategy, repository, options, metrics, ct);
+                    await ReadOnceAsync(strategy, repository, options, productId, metrics, ct);
                 else
-                    await WriteOnceAsync(strategy, repository, options, metrics, ct);
+                    await WriteOnceAsync(strategy, repository, options, productId, metrics, ct);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
             {
@@ -116,6 +121,7 @@ public sealed class WorkloadExperimentRunner
         ICacheStrategy strategy,
         IProductRepository repository,
         WorkloadOptions options,
+        int productId,
         WorkloadMetrics metrics,
         CancellationToken ct)
     {
@@ -126,7 +132,7 @@ public sealed class WorkloadExperimentRunner
         {
             try
             {
-                beforeRead = await repository.GetByIdAsync(options.ProductId, ct);
+                beforeRead = await repository.GetByIdAsync(productId, ct);
                 beforeReadSucceeded = beforeRead is not null;
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -143,7 +149,7 @@ public sealed class WorkloadExperimentRunner
         Product? value;
         try
         {
-            value = await strategy.GetAsync(options.ProductId, ct);
+            value = await strategy.GetAsync(productId, ct);
             metrics.RecordReadLatency(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             latencyRecorded = true;
         }
@@ -177,7 +183,7 @@ public sealed class WorkloadExperimentRunner
         Product? sourceOfTruth;
         try
         {
-            sourceOfTruth = await repository.GetByIdAsync(options.ProductId, ct);
+            sourceOfTruth = await repository.GetByIdAsync(productId, ct);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
@@ -220,6 +226,7 @@ public sealed class WorkloadExperimentRunner
         ICacheStrategy strategy,
         IProductRepository repository,
         WorkloadOptions options,
+        int productId,
         WorkloadMetrics metrics,
         CancellationToken ct)
     {
@@ -227,8 +234,8 @@ public sealed class WorkloadExperimentRunner
         var started = Stopwatch.GetTimestamp();
         try
         {
-            var current = await strategy.GetAsync(options.ProductId, ct)
-                          ?? await repository.GetByIdAsync(options.ProductId, ct);
+            var current = await strategy.GetAsync(productId, ct)
+                          ?? await repository.GetByIdAsync(productId, ct);
             if (current is null)
             {
                 metrics.WriteFailed();
@@ -240,7 +247,7 @@ public sealed class WorkloadExperimentRunner
             {
                 var newStock = Math.Max(0, current.Stock + delta);
                 var updated = await strategy.UpdateStockAsync(
-                    options.ProductId,
+                    productId,
                     newStock,
                     current.Version,
                     ct);
@@ -258,7 +265,7 @@ public sealed class WorkloadExperimentRunner
                 metrics.WriteRetry();
                 // Get the source-of-truth version after an optimistic-concurrency conflict. This
                 // keeps a stale cache value from causing an infinite retry loop.
-                current = await repository.GetByIdAsync(options.ProductId, ct);
+                current = await repository.GetByIdAsync(productId, ct);
                 if (current is null)
                     break;
             }

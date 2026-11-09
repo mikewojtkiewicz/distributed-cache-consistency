@@ -42,7 +42,7 @@ public sealed record ExperimentResult(
     LatencyPercentiles ReadLatencyMs,
     LatencyPercentiles WriteLatencyMs);
 
-internal sealed class LatencySampler
+public sealed class LatencySampler
 {
     private const int Capacity = 100_000;
     private readonly long[] _samples = new long[Capacity];

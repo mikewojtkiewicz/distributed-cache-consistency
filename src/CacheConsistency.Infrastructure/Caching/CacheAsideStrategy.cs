@@ -6,7 +6,8 @@ namespace CacheConsistency.Infrastructure.Caching;
 
 public sealed class CacheAsideStrategy : CacheStrategyBase
 {
-    public CacheAsideStrategy(IProductRepository repo, IDatabase cache) : base(repo, cache) { }
+    public CacheAsideStrategy(IProductRepository repo, IDatabase cache, CacheRecoveryOptions? recovery = null)
+        : base(repo, cache, recovery) { }
 
     public override string Name => "Cache-Aside (lazy load + invalidate on write)";
 
@@ -22,7 +23,7 @@ public sealed class CacheAsideStrategy : CacheStrategyBase
         RecordMiss();
         var fromDb = await Repo.GetByIdAsync(id, ct);
         if (fromDb is not null)
-            await Cache.StringSetAsync(Key(id), Serialize(fromDb));
+            await PopulateAsync(fromDb);
         return fromDb;
     }
 
@@ -31,7 +32,7 @@ public sealed class CacheAsideStrategy : CacheStrategyBase
     {
         var updated = await Repo.TryUpdateStockAsync(id, newStock, expectedVersion, ct);
         if (updated is not null)
-            await Cache.KeyDeleteAsync(Key(id));
+            await InvalidateAsync(id);
         return updated;
     }
 }
