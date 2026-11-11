@@ -1,0 +1,24 @@
+1. Microsoft - Cache-Aside Pattern
+Type: Official documentation
+Relevance: Explains the cache-aside baseline and its consistency limitations.
+Link: https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside
+
+2. Meta - Cache Made Consistent (2022)
+Type: Engineering article
+Relevance: Discusses versioning, out-of-order cache fills, loss of version information through eviction, and consistency measurement.
+Link: https://engineering.fb.com/2022/06/08/core-infra/cache-made-consistent/
+
+3. Nishtala et al. - Scaling Memcache at Facebook (2013)
+Type: Academic paper, USENIX NSDI
+Relevance: Explains leases that prevent delayed operations from inserting stale data.
+Link: https://www.usenix.org/conference/nsdi13/technical-sessions/presentation/nishtala
+
+4. Bronson et al. - TAO: Facebook’s Distributed Data Store for the Social Graph (2013)
+Type: Academic paper, USENIX Annual Technical Conference
+Relevance: Provides architectural context for coordinated writes and cache maintenance in a distributed system.
+Link: https://www.usenix.org/conference/atc13/technical-sessions/presentation/bronson
+
+5. Chris Richardson - Transactional Outbox Pattern
+Type: Technical pattern article
+Relevance: Explains the failure gap between a database commit and an outgoing notification, providing background for potential future improvements.
+Link: https://microservices.io/patterns/data/transactional-outbox.html
