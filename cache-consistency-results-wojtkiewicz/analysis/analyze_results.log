@@ -1,3 +1,8 @@
+Stale-read percentages apply to stable validations.
+Reported p95 averages are means of per-run percentiles.
+  Input: out_of_order/cache-consistency-20261109-185250-586.csv
+  Input: out_of_order/cache-consistency-20261109-191139-322.csv
+  Input: out_of_order/cache-consistency-20261109-193028-149.csv
 
 Experiment: out_of_order
 
@@ -28,6 +33,9 @@ Experiment: out_of_order
     Mean throughput: 1620.3 ops/s
     Mean per-run read p95: 0.506 ms
     Mean per-run write p95: 307.861 ms
+  Input: clean_naive/cache-consistency-20261110-214218-452.csv
+  Input: clean_naive/cache-consistency-20261110-214459-713.csv
+  Input: clean_naive/cache-consistency-20261110-214740-949.csv
 
 Experiment: clean_naive
 
@@ -58,6 +66,9 @@ Experiment: clean_naive
     Mean throughput: 1589.4 ops/s
     Mean per-run read p95: 0.545 ms
     Mean per-run write p95: 331.722 ms
+  Input: clean_recovery/cache-consistency-20261110-214339-075.csv
+  Input: clean_recovery/cache-consistency-20261110-214620-324.csv
+  Input: clean_recovery/cache-consistency-20261110-214901-581.csv
 
 Experiment: clean_recovery
 
@@ -89,4 +100,4 @@ Experiment: clean_recovery
     Mean per-run read p95: 0.624 ms
     Mean per-run write p95: 329.482 ms
 
-Graphs saved to: /Users/whprather/Developer/repos/distributed-cache-consistency/results/analysis
+Graphs saved to: /Users/whprather/Developer/repos/my-copy/distributed-cache-consistency/cache-consistency-results/analysis
