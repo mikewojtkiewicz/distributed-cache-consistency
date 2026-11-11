@@ -1,0 +1,92 @@
+
+Experiment: out_of_order
+
+  Cache-Aside (lazy load + invalidate on write)
+    Runs: 3
+    Mean stale-read percentage: 41.18%
+    Mean throughput: 1566.7 ops/s
+    Mean per-run read p95: 51.108 ms
+    Mean per-run write p95: 265.274 ms
+
+  TTL (30s expiry, no write invalidation)
+    Runs: 3
+    Mean stale-read percentage: 99.90%
+    Mean throughput: 1649.5 ops/s
+    Mean per-run read p95: 0.750 ms
+    Mean per-run write p95: 308.865 ms
+
+  Write-Through (write DB then cache, same path)
+    Runs: 3
+    Mean stale-read percentage: 39.13%
+    Mean throughput: 1632.7 ops/s
+    Mean per-run read p95: 0.426 ms
+    Mean per-run write p95: 300.976 ms
+
+  Versioned Write-Through (monotonic, version-guarded)
+    Runs: 3
+    Mean stale-read percentage: 22.51%
+    Mean throughput: 1620.3 ops/s
+    Mean per-run read p95: 0.506 ms
+    Mean per-run write p95: 307.861 ms
+
+Experiment: clean_naive
+
+  Cache-Aside (lazy load + invalidate on write)
+    Runs: 3
+    Mean stale-read percentage: 12.65%
+    Mean throughput: 1547.6 ops/s
+    Mean per-run read p95: 2.725 ms
+    Mean per-run write p95: 334.742 ms
+
+  TTL (30s expiry, no write invalidation)
+    Runs: 3
+    Mean stale-read percentage: 99.98%
+    Mean throughput: 1616.5 ops/s
+    Mean per-run read p95: 0.601 ms
+    Mean per-run write p95: 309.693 ms
+
+  Write-Through (write DB then cache, same path)
+    Runs: 3
+    Mean stale-read percentage: 12.04%
+    Mean throughput: 1587.9 ops/s
+    Mean per-run read p95: 0.542 ms
+    Mean per-run write p95: 329.719 ms
+
+  Versioned Write-Through (monotonic, version-guarded)
+    Runs: 3
+    Mean stale-read percentage: 11.86%
+    Mean throughput: 1589.4 ops/s
+    Mean per-run read p95: 0.545 ms
+    Mean per-run write p95: 331.722 ms
+
+Experiment: clean_recovery
+
+  Cache-Aside (lazy load + invalidate on write)
+    Runs: 3
+    Mean stale-read percentage: 12.45%
+    Mean throughput: 1535.7 ops/s
+    Mean per-run read p95: 2.416 ms
+    Mean per-run write p95: 334.389 ms
+
+  TTL (30s expiry, no write invalidation)
+    Runs: 3
+    Mean stale-read percentage: 99.90%
+    Mean throughput: 1639.5 ops/s
+    Mean per-run read p95: 0.619 ms
+    Mean per-run write p95: 312.524 ms
+
+  Write-Through (write DB then cache, same path)
+    Runs: 3
+    Mean stale-read percentage: 2.73%
+    Mean throughput: 1578.4 ops/s
+    Mean per-run read p95: 0.617 ms
+    Mean per-run write p95: 330.299 ms
+
+  Versioned Write-Through (monotonic, version-guarded)
+    Runs: 3
+    Mean stale-read percentage: 2.53%
+    Mean throughput: 1587.7 ops/s
+    Mean per-run read p95: 0.624 ms
+    Mean per-run write p95: 329.482 ms
+
+Graphs saved to: /Users/whprather/Developer/repos/distributed-cache-consistency/results/analysis
