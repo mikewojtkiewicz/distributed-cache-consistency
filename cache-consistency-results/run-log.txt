@@ -1,0 +1,49 @@
+===== REP 1/3  18:36:43 =====
+  ok   baseline | --workers 10 --ratio 90/10
+  ok   baseline | --workers 10 --ratio 80/20
+  ok   baseline | --workers 10 --ratio 50/50
+  ok   baseline | --workers 50 --ratio 90/10
+  ok   baseline | --workers 50 --ratio 80/20
+  ok   baseline | --workers 50 --ratio 50/50
+  ok   baseline | --workers 100 --ratio 90/10
+  ok   baseline | --workers 100 --ratio 80/20
+  ok   baseline | --workers 100 --ratio 50/50
+  ok   faults_naive | --workers 50 --ratio 80/20 --min-delay-ms 1 --max-delay-ms 10 --cache-update-failure-rate 0.1 --invalidation-failure-rate 0.1
+  ok   faults_recovery | --workers 50 --ratio 80/20 --min-delay-ms 1 --max-delay-ms 10 --cache-update-failure-rate 0.1 --invalidation-failure-rate 0.1 --recovery
+  ok   out_of_order | --workers 50 --ratio 80/20 --out-of-order-rate 0.3 --out-of-order-delay-ms 50
+  ok   multikey | --workers 50 --ratio 80/20 --key-count 20 --hot-keys 3
+  ok   multikey_stress | --workers 50 --ratio 80/20 --key-count 20 --hot-keys 3 --out-of-order-rate 0.3 --out-of-order-delay-ms 50
+===== REP 2/3  18:55:31 =====
+  ok   baseline | --workers 10 --ratio 90/10
+  ok   baseline | --workers 10 --ratio 80/20
+  ok   baseline | --workers 10 --ratio 50/50
+  ok   baseline | --workers 50 --ratio 90/10
+  ok   baseline | --workers 50 --ratio 80/20
+  ok   baseline | --workers 50 --ratio 50/50
+  ok   baseline | --workers 100 --ratio 90/10
+  ok   baseline | --workers 100 --ratio 80/20
+  ok   baseline | --workers 100 --ratio 50/50
+  ok   faults_naive | --workers 50 --ratio 80/20 --min-delay-ms 1 --max-delay-ms 10 --cache-update-failure-rate 0.1 --invalidation-failure-rate 0.1
+  ok   faults_recovery | --workers 50 --ratio 80/20 --min-delay-ms 1 --max-delay-ms 10 --cache-update-failure-rate 0.1 --invalidation-failure-rate 0.1 --recovery
+  ok   out_of_order | --workers 50 --ratio 80/20 --out-of-order-rate 0.3 --out-of-order-delay-ms 50
+  ok   multikey | --workers 50 --ratio 80/20 --key-count 20 --hot-keys 3
+  ok   multikey_stress | --workers 50 --ratio 80/20 --key-count 20 --hot-keys 3 --out-of-order-rate 0.3 --out-of-order-delay-ms 50
+===== REP 3/3  19:14:20 =====
+  ok   baseline | --workers 10 --ratio 90/10
+  ok   baseline | --workers 10 --ratio 80/20
+  ok   baseline | --workers 10 --ratio 50/50
+  ok   baseline | --workers 50 --ratio 90/10
+  ok   baseline | --workers 50 --ratio 80/20
+  ok   baseline | --workers 50 --ratio 50/50
+  ok   baseline | --workers 100 --ratio 90/10
+  ok   baseline | --workers 100 --ratio 80/20
+  ok   baseline | --workers 100 --ratio 50/50
+  ok   faults_naive | --workers 50 --ratio 80/20 --min-delay-ms 1 --max-delay-ms 10 --cache-update-failure-rate 0.1 --invalidation-failure-rate 0.1
+  ok   faults_recovery | --workers 50 --ratio 80/20 --min-delay-ms 1 --max-delay-ms 10 --cache-update-failure-rate 0.1 --invalidation-failure-rate 0.1 --recovery
+  ok   out_of_order | --workers 50 --ratio 80/20 --out-of-order-rate 0.3 --out-of-order-delay-ms 50
+  ok   multikey | --workers 50 --ratio 80/20 --key-count 20 --hot-keys 3
+  ok   multikey_stress | --workers 50 --ratio 80/20 --key-count 20 --hot-keys 3 --out-of-order-rate 0.3 --out-of-order-delay-ms 50
+===== DONE 19:33:09  elapsed 56m =====
+CSV files: 42 across 6 groups
+
+[exited with code 0]
