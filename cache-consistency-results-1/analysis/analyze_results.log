@@ -99,5 +99,3 @@ Experiment: clean_recovery
     Mean throughput: 1587.7 ops/s
     Mean per-run read p95: 0.624 ms
     Mean per-run write p95: 329.482 ms
-
-Graphs saved to: /Users/whprather/Developer/repos/my-copy/distributed-cache-consistency/cache-consistency-results/analysis

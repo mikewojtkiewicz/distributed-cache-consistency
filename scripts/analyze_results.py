@@ -182,12 +182,13 @@ ax.spines[["top", "right"]].set_visible(False)
 
 fig.text(
     0.5, 0.02,
-    "Bars show mean per-run stale-read percentages; dots show individual runs.\n"
-    "Source CSV filenames are recorded in analyze_results.log.",
+    "50 workers | 80/20 reads/writes | 1 product | 20 seconds per run\n"
+    "10% cache-update failures | 10% invalidation failures | No artificial delays\n"
+    "Mean of 3 runs; dots show each run",
     ha="center", fontsize=9,
 )
 fig.tight_layout(rect=(0, 0.14, 1, 1))
 fig.savefig(output_dir / "recovery_stale_reads.png", dpi=300)
 plt.close(fig)
 
-report(f"\nGraphs saved to: {output_dir}")
+# report(f"\nGraphs saved to: {output_dir}")

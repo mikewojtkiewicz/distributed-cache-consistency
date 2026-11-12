@@ -100,4 +100,4 @@ Experiment: clean_recovery
     Mean per-run read p95: 4.680 ms
     Mean per-run write p95: 1151.926 ms
 
-Graphs saved to: /Users/whprather/Developer/repos/my-copy/distributed-cache-consistency/results/analysis
+Graphs saved to: /Users/whprather/Developer/repos/my-copy/distributed-cache-consistency/cache-consistency-results-1/analysis
