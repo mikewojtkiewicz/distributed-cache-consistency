@@ -1,0 +1,101 @@
+Stale-read percentages apply to stable validations.
+Reported p95 averages are means of per-run percentiles.
+  Input: out_of_order/cache-consistency-20261111-183634-329.csv
+  Input: out_of_order/cache-consistency-20261111-185900-223.csv
+  Input: out_of_order/cache-consistency-20261111-192122-137.csv
+
+Experiment: out_of_order
+
+  Cache-Aside (lazy load + invalidate on write)
+    Runs: 3
+    Mean stale-read percentage: 42.34%
+    Mean throughput: 457.6 ops/s
+    Mean per-run read p95: 56.143 ms
+    Mean per-run write p95: 1067.889 ms
+
+  TTL (30s expiry, no write invalidation)
+    Runs: 3
+    Mean stale-read percentage: 99.71%
+    Mean throughput: 515.2 ops/s
+    Mean per-run read p95: 3.608 ms
+    Mean per-run write p95: 1022.371 ms
+
+  Write-Through (write DB then cache, same path)
+    Runs: 3
+    Mean stale-read percentage: 40.67%
+    Mean throughput: 503.2 ops/s
+    Mean per-run read p95: 3.494 ms
+    Mean per-run write p95: 1050.828 ms
+
+  Versioned Write-Through (monotonic, version-guarded)
+    Runs: 3
+    Mean stale-read percentage: 27.47%
+    Mean throughput: 519.3 ops/s
+    Mean per-run read p95: 3.583 ms
+    Mean per-run write p95: 1022.226 ms
+  Input: clean_naive/cache-consistency-20261111-183344-796.csv
+  Input: clean_naive/cache-consistency-20261111-185611-936.csv
+  Input: clean_naive/cache-consistency-20261111-191834-236.csv
+
+Experiment: clean_naive
+
+  Cache-Aside (lazy load + invalidate on write)
+    Runs: 3
+    Mean stale-read percentage: 13.94%
+    Mean throughput: 496.6 ops/s
+    Mean per-run read p95: 10.499 ms
+    Mean per-run write p95: 1130.168 ms
+
+  TTL (30s expiry, no write invalidation)
+    Runs: 3
+    Mean stale-read percentage: 99.56%
+    Mean throughput: 503.2 ops/s
+    Mean per-run read p95: 4.584 ms
+    Mean per-run write p95: 1194.266 ms
+
+  Write-Through (write DB then cache, same path)
+    Runs: 3
+    Mean stale-read percentage: 12.83%
+    Mean throughput: 453.2 ops/s
+    Mean per-run read p95: 6.036 ms
+    Mean per-run write p95: 1393.809 ms
+
+  Versioned Write-Through (monotonic, version-guarded)
+    Runs: 3
+    Mean stale-read percentage: 12.81%
+    Mean throughput: 505.2 ops/s
+    Mean per-run read p95: 3.817 ms
+    Mean per-run write p95: 1089.181 ms
+  Input: clean_recovery/cache-consistency-20261111-183510-148.csv
+  Input: clean_recovery/cache-consistency-20261111-185735-985.csv
+  Input: clean_recovery/cache-consistency-20261111-191958-271.csv
+
+Experiment: clean_recovery
+
+  Cache-Aside (lazy load + invalidate on write)
+    Runs: 3
+    Mean stale-read percentage: 13.89%
+    Mean throughput: 470.4 ops/s
+    Mean per-run read p95: 9.515 ms
+    Mean per-run write p95: 1174.289 ms
+
+  TTL (30s expiry, no write invalidation)
+    Runs: 3
+    Mean stale-read percentage: 99.57%
+    Mean throughput: 525.3 ops/s
+    Mean per-run read p95: 3.861 ms
+    Mean per-run write p95: 1058.796 ms
+
+  Write-Through (write DB then cache, same path)
+    Runs: 3
+    Mean stale-read percentage: 4.33%
+    Mean throughput: 521.6 ops/s
+    Mean per-run read p95: 4.267 ms
+    Mean per-run write p95: 1043.999 ms
+
+  Versioned Write-Through (monotonic, version-guarded)
+    Runs: 3
+    Mean stale-read percentage: 4.08%
+    Mean throughput: 498.1 ops/s
+    Mean per-run read p95: 4.680 ms
+    Mean per-run write p95: 1151.926 ms
